@@ -24,29 +24,54 @@ spec:
       - name: model-downloader
         image: python:3.11-slim
         securityContext:
-          {{- toYaml .Values.securityContext | nindent 10 }}
+          runAsNonRoot: false
+          allowPrivilegeEscalation: false
         command: ["/bin/bash", "-c"]
         args:
-        - |
-          set -e
-          echo "Installing Hugging Face CLI..."
-          pip install --no-cache-dir huggingface_hub[cli]
+          - |
+            set -e
+            # Check if all required models already exist in PVC; if yes, skip downloads entirely
+            REQUIRED_DIRS=(
+              "all-MiniLM-L12-v2"
+              "category_classifier_modernbert-base_model"
+            )
+            mkdir -p /app/models
+            cd /app/models
+            MISSING=false
+            for d in "${REQUIRED_DIRS[@]}"; do
+              if [ ! -d "$d" ]; then
+                MISSING=true
+                break
+              fi
+            done
+            if [ "$MISSING" = false ]; then
+              echo "All required models already present in PVC. Skipping download."
+              exit 0
+            fi
 
-          echo "Downloading models to persistent volume..."
-          cd /app/models
+            echo "Installing Hugging Face CLI..."
+            pip install --no-cache-dir huggingface_hub[cli]
 
-          {{- range .Values.models.download.list }}
-          # Download {{ .name }}
-          if [ ! -d "{{ .name }}" ]; then
-            echo "Downloading {{ .name }}..."
-            huggingface-cli download {{ .repo }} --local-dir {{ .name }}
-          else
-            echo "{{ .name }} already exists, skipping..."
-          fi
-          {{- end }}
+            echo "Downloading missing models to persistent volume..."
 
-          echo "All models downloaded successfully!"
-          ls -la /app/models/
+            # Download all-MiniLM-L12-v2 model
+            if [ ! -d "all-MiniLM-L12-v2" ]; then
+              echo "Downloading all-MiniLM-L12-v2 model..."
+              hf download sentence-transformers/all-MiniLM-L12-v2 --local-dir all-MiniLM-L12-v2
+            else
+              echo "all-MiniLM-L12-v2 model already exists, skipping..."
+            fi
+
+            # Download category classifier model
+            if [ ! -d "category_classifier_modernbert-base_model" ]; then
+              echo "Downloading category classifier model..."
+              hf download LLM-Semantic-Router/category_classifier_modernbert-base_model --local-dir category_classifier_modernbert-base_model
+            else
+              echo "Category classifier model already exists, skipping..."
+            fi
+
+            echo "All missing models downloaded successfully!"
+            ls -la /app/models/
         env:
         - name: HF_HUB_CACHE
           value: /tmp/hf_cache
