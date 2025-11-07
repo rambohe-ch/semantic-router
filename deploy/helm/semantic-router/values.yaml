@@ -6,10 +6,6 @@
 global:
   namespace: vllm-semantic-router-system
 
-# Namespace settings
-namespace:
-  create: true
-
 # Image settings
 image:
   repository: ghcr.io/vllm-project/semantic-router/extproc
@@ -123,7 +119,7 @@ config:
     enabled: false
 
   # vLLM Endpoints Configuration
-  # These endpoints only used as a place holder, and envoy gateway will route to actual model endpoints according to the selected model by semantic-router.
+  # These endpoints are only used as a place holder, and envoy gateway will route to actual model endpoints according to the selected model by semantic-router.
   vllmEndpoints:
     - name: "deepseek-endpoint"
       address: "127.0.0.1"
@@ -236,7 +232,7 @@ config:
           score: 1.0
           useReasoning: true
         - model: phi-4
-          score: 0.9
+          score: 0.8
           useReasoning: false
     - name: physics
       modelScores:

@@ -188,7 +188,7 @@ The semantic router intelligently routes requests to different models based on t
 
 ### phi-4 Selection Scenarios
 
-The **phi-4** model (192.168.2.1:5000) is optimized for conversational and simple tasks:
+The **phi-4** model `(configured endpoint)` is optimized for conversational and simple tasks:
 
 #### 1. Other/General Chat (Highest Priority for phi-4)
 
@@ -260,7 +260,7 @@ The **phi-4** model (192.168.2.1:5000) is optimized for conversational and simpl
 
 ### deepseek-r1-distill-qwen-14b Selection Scenarios
 
-The **deepseek-r1-distill-qwen-14b** model (192.168.1.1:5000) excels at complex reasoning tasks with "thinking" mode enabled:
+The **deepseek-r1-distill-qwen-14b** model `(configured endpoint)` excels at complex reasoning tasks with "thinking" mode enabled:
 
 #### 1. Math & Reasoning (Perfect Score + Reasoning)
 
